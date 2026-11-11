@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "brambles-aix"
+version = "0.1.0"
+description = "Client SDK for the Agentic Intent Exchange (AIX) HTTPS API: send intent, report handoffs, receive and verify deliveries."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Brambles.ai", email = "hello@brambles.ai" }]
+classifiers = [
+  "License :: Other/Proprietary License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dependencies = [
+  "httpx>=0.24",
+  "cryptography>=41",
+  "typing_extensions>=4.5; python_version < '3.11'",
+]
+
+[project.urls]
+Homepage = "https://www.brambles.ai/agentic-intent-exchange/docs"
+Documentation = "https://www.brambles.ai/agentic-intent-exchange/docs"
+Source = "https://github.com/brambles-ai/aix-sdks"
+
+[project.optional-dependencies]
+openai-agents = ["openai-agents>=0.1", "typing_extensions>=4.5"]
+langchain = ["langchain-core>=0.3", "pydantic>=2"]
+test = ["pytest>=8", "openai-agents>=0.1", "langchain-core>=0.3", "pydantic>=2", "typing_extensions>=4.5"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/brambles_aix"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/brambles_aix", "tests", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
