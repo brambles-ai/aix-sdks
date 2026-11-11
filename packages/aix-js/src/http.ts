@@ -1,5 +1,5 @@
 import { AixError } from "./errors.js";
-import type { Skipped } from "./types.js";
+import type { RequestIssue, Skipped } from "./types.js";
 
 export const AIX_API_BASE = "https://aix.brambles.ai/api/aix";
 /** The setup skills: "Call it from the server with a 3 second timeout and carry on normally if it fails." */
@@ -75,6 +75,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** The fields a rejected request got wrong, as the exchange listed them. */
+function requestIssues(value: unknown): RequestIssue[] {
+  if (!Array.isArray(value)) return [];
+  const issues: RequestIssue[] = [];
+  for (const item of value.slice(0, 20)) {
+    if (isRecord(item) && typeof item["path"] === "string" && typeof item["message"] === "string") {
+      issues.push({ path: item["path"], message: item["message"] });
+    }
+  }
+  return issues;
+}
+
 /**
  * Shopper path: never throw. Any JSON answer that carries a string `status`
  * (202 accepted, 200 suppressed, 409 no_active_intent, …) is returned as is;
@@ -90,6 +102,8 @@ export function shopperPath<T extends { status: string }>(outcome: HttpOutcome):
   if (isRecord(body)) {
     if (typeof body["error"] === "string") skipped.error = body["error"];
     if (typeof body["retry_after"] === "number") skipped.retry_after = body["retry_after"];
+    const issues = requestIssues(body["issues"]);
+    if (issues.length) skipped.issues = issues;
   }
   if (outcome.status >= 200 && outcome.status < 300) skipped.reason = "invalid_response";
   return skipped;

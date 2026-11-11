@@ -519,12 +519,21 @@ class AixContext(TypedDict):
     privacy: NotRequired[IntentPrivacy | None]  # for example {"gpc": True} for a request carrying Sec-GPC: 1
 
 
+class RequestIssue(TypedDict):
+    """One field the exchange rejected: where it is in the request and what was wrong."""
+
+    path: str
+    message: str
+
+
 class Skipped(TypedDict):
     """Returned by the sender-side methods instead of raising. ``reason`` is ``no_key``, ``timeout``,
-    ``network``, ``invalid_response`` or ``http_<status>`` (with the exchange's ``error`` when known)."""
+    ``network``, ``invalid_response`` or ``http_<status>`` (with the exchange's ``error`` when known).
+    A rejected request (``error: "invalid_request"``) lists each wrong field in ``issues``."""
 
     status: Literal["skipped"]
     reason: str
     http_status: NotRequired[int]
     error: NotRequired[str]
     retry_after: NotRequired[int]
+    issues: NotRequired[list[RequestIssue]]

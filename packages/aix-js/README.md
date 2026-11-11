@@ -54,7 +54,7 @@ const result = await aix.sendIntent({
 // before any affiliate or ad wrapping:
 const url = await aix.storeUrl({
   session_id: "conv_123",
-  destination_url: "https://store.example/products/wide-runner", // the store's own page
+  destination_url: "https://store.example.com/products/wide-runner", // the store's own page, a public https address
   consent: "granted", // when the shopper was shown your sharing notice
 });
 // The store URL with ?aix=<handoff id> added when a store would pay.
@@ -74,7 +74,7 @@ account or order numbers, or the conversation itself.
 
 Sender calls (`sendIntent`, `reportHandoff`, `storeUrl`, `handoffUrl`, `deleteSession`) use a
 3 second timeout and never throw. On a timeout, a network failure or an error answer they
-resolve to `{ status: "skipped", reason, http_status?, error?, retry_after? }`, and the two
+resolve to `{ status: "skipped", reason, http_status?, error?, retry_after?, issues? }`, and the two
 URL helpers return the original link. Carry on as if AIX were not there.
 
 ## Receiving agent
@@ -172,7 +172,10 @@ const order = await aix.redeemHandoff(handoffId, { via: "checkout", order_id: "o
 exchange's answer (`{ redeemed: true, receipt_id, context_url, duplicate?, test? }` or
 `{ redeemed: false, reason }`), or to `{ redeemed: false, reason }` with `order_required`,
 `visitor_required`, `unknown_handoff`, `timeout`, `network`, `invalid_response` or
-`http_<status>`. With a sandbox key, any well-formed handoff id returns a free test delivery.
+`http_<status>`. With a sandbox key, any well-formed handoff id returns a free test delivery. It
+carries a sample brief, unless the id is a handoff your own sandbox sender reported (the same
+organization owns both, or the handoff is to your verified domain): then it carries that
+sender's brief, so you can test both sides together.
 
 ### Report the outcome
 

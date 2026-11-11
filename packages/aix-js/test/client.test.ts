@@ -87,10 +87,17 @@ describe("sendIntent (sender side)", () => {
     if (result.status === "suppressed") expect(result.reason).toBe("consent_required");
   });
 
-  it("maps a 400 to skipped with the exchange's error code", async () => {
-    const { fetch } = mockFetch(400, { error: "invalid_request", issues: [{ path: "task.category", message: "Required" }] });
+  it("maps a 400 to skipped with the exchange's error code and the fields it rejected", async () => {
+    const { fetch } = mockFetch(400, { error: "invalid_request", issues: [{ path: "task.category", message: "Required" }, { path: 7 }, "x"] });
     const result = (await createAixClient({ key: SENDER_KEY, fetch }).sendIntent(intent)) as Skipped;
-    expect(result).toEqual({ status: "skipped", reason: "http_400", http_status: 400, error: "invalid_request" });
+    expect(result).toEqual({ status: "skipped", reason: "http_400", http_status: 400, error: "invalid_request",
+      issues: [{ path: "task.category", message: "Required" }] });
+  });
+
+  it("leaves issues out when the exchange listed none", async () => {
+    const { fetch } = mockFetch(400, { error: "invalid_destination_url", issues: [] });
+    const result = (await createAixClient({ key: SENDER_KEY, fetch }).reportHandoff({ session_id: "s", destination_url: "https://store.example.com/p" })) as Skipped;
+    expect(result).toEqual({ status: "skipped", reason: "http_400", http_status: 400, error: "invalid_destination_url" });
   });
 
   it("maps a 429 to skipped with retry_after", async () => {

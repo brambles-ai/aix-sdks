@@ -592,7 +592,8 @@ export interface OutcomeRecorded {
  * Returned by the sender-side methods instead of throwing, so AIX can never
  * block the shopper. `reason` is `no_key`, `no_fetch`, `timeout`, `network`,
  * `invalid_response` or `http_<status>` (with the exchange's `error` code when
- * the body had one).
+ * the body had one). A rejected request (`error: "invalid_request"`) lists each
+ * wrong field in `issues`.
  */
 export interface Skipped {
   status: "skipped";
@@ -600,4 +601,11 @@ export interface Skipped {
   http_status?: number;
   error?: string;
   retry_after?: number;
+  issues?: RequestIssue[];
+}
+
+/** One field the exchange rejected: where it is in the request and what was wrong. */
+export interface RequestIssue {
+  path: string;
+  message: string;
 }

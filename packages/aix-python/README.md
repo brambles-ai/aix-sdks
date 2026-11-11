@@ -55,7 +55,7 @@ result = aix.send_intent({
 # When you link the shopper to a store, report the handoff and get the store URL for your link:
 url = aix.store_url({
     "session_id": "conv_123",
-    "destination_url": "https://store.example/products/wide-runner",   # the store's own page
+    "destination_url": "https://store.example.com/products/wide-runner",   # the store's own page, a public https address
     "consent": "granted",                # when the shopper was shown your sharing notice
 })
 # Put `url` inside your own link (affiliate, ad or plain), before you wrap it.
@@ -74,7 +74,8 @@ either URL from your server.
 
 Sender calls never raise and time out after 3 seconds. If AIX is slow, down or the key is
 missing, they return `{"status": "skipped", "reason": ...}`, and `store_url` and `handoff_url`
-return your original URL. Send only shopping requirements: never names, contact details,
+return your original URL. When the exchange rejects a request, the result also carries its `error`
+and, for `invalid_request`, the wrong fields in `issues`. Send only shopping requirements: never names, contact details,
 account or order numbers, or the conversation itself.
 
 ## Receiver
@@ -163,7 +164,10 @@ when the shopper left without buying.
 
 Without a webhook, pull instead. `list_deliveries()` lists recent deliveries, `get_delivery(receipt_id)`
 returns one, and `acknowledge(...)` records `verified` once you have stored it. To test, call
-`request_test_delivery()` with a sandbox key.
+`request_test_delivery()` with a sandbox key. A sandbox `redeem_handoff` also returns a free test
+delivery for any well-formed handoff id. It carries a sample brief, unless the id is a handoff your
+own sandbox sender reported (the same organization owns both, or the handoff is to your verified
+domain): then it carries that sender's brief, so you can test both sides together.
 
 All receiver calls except `redeem_handoff` raise `AixError` on failure. It carries `code`
 (the exchange's error code, or `timeout`, `network`, `no_key`), `status`, `body` and `retry_after`.

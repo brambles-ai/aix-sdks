@@ -73,6 +73,15 @@ def _sender_path(outcome: _Outcome) -> Any:
             skipped["error"] = body["error"]
         if isinstance(body.get("retry_after"), int):
             skipped["retry_after"] = body["retry_after"]
+        # The fields a rejected request got wrong, as the exchange listed them.
+        listed = body.get("issues")
+        issues = [
+            {"path": item["path"], "message": item["message"]}
+            for item in (listed[:20] if isinstance(listed, list) else [])
+            if isinstance(item, dict) and isinstance(item.get("path"), str) and isinstance(item.get("message"), str)
+        ]
+        if issues:
+            skipped["issues"] = issues
     if 200 <= status < 300:
         skipped["reason"] = "invalid_response"
     return skipped

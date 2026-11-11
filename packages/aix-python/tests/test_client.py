@@ -88,6 +88,11 @@ def test_http_errors_become_skipped_results():
     assert AixClient(SENDER_KEY, transport=Recorder(400, {"error": "invalid_request", "issues": []}).transport).send_intent(INTENT) == {
         "status": "skipped", "reason": "http_400", "http_status": 400, "error": "invalid_request",
     }
+    listed = [{"path": "task.category", "message": "Required"}, {"path": 7}, "x"]
+    assert AixClient(SENDER_KEY, transport=Recorder(400, {"error": "invalid_request", "issues": listed}).transport).send_intent(INTENT) == {
+        "status": "skipped", "reason": "http_400", "http_status": 400, "error": "invalid_request",
+        "issues": [{"path": "task.category", "message": "Required"}],
+    }
     limited = AixClient(SENDER_KEY, transport=Recorder(429, {"error": "rate_limited", "retry_after": 12}).transport).send_intent(INTENT)
     assert limited["reason"] == "http_429" and limited["retry_after"] == 12
     down = AixClient(SENDER_KEY, transport=Recorder(503, {"error": "extractor_unavailable"}).transport).send_intent({"session_id": "s", "message": "hi"})
