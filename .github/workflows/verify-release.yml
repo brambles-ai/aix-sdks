@@ -1,0 +1,50 @@
+name: Verify release artifacts (no publication)
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact package version to verify; does not create a tag or release
+        required: true
+        default: '0.1.0'
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: packages/aix-js/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+        working-directory: packages/aix-js
+      - run: python -m pip install -e './packages/aix-python[test]' build twine
+      - name: Build and verify exact version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            python scripts/verify-release.py --version "${GITHUB_REF_NAME#v}" --tag "$GITHUB_REF_NAME"
+          else
+            python scripts/verify-release.py --version "$REQUESTED_VERSION"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aix-verified-packages
+          path: .artifacts/*/*
+          if-no-files-found: error
+          include-hidden-files: true
