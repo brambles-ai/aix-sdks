@@ -139,3 +139,17 @@ transport test does not establish sandbox, webhook delivery, merchant, or paid e
 As of this tooling candidate, controlled fixtures and local package/build checks are
 automated; authenticated sandbox, external-client sign-in, real-merchant and paid results
 are not recorded here. CI configuration is separate from an observed green GitHub run.
+
+## Development-tool advisory remediation
+
+The release CI exposed existing Vitest 3.2.7 development-tool audit findings. This
+candidate upgrades only the development runner to Vitest 4.1.12 and declares its
+existing Vite 7.3.7 peer explicitly. The official
+[Vitest advisory](https://github.com/vitest-dev/vitest/security/advisories/GHSA-qxg6-89mg-rqv8)
+identifies 4.1.12 as the first patched mocker release. The updated dependency tree
+removes tinypool and npm audit reports zero vulnerabilities at verification time.
+This does not establish that dependencies can never have undisclosed issues.
+Package runtime dependencies, public versions and the runtime engine field stay
+unchanged. CI also caught a Python 3.10 typing compatibility defect: the existing
+`NotRequired` backport now uses its matching `TypedDict` backport so optional wire
+fields remain optional in runtime metadata.

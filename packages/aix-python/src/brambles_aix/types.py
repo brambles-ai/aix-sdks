@@ -8,12 +8,13 @@ with no properties) the type here is ``dict[str, Any]``.
 # No "from __future__ import annotations" here: TypedDict needs real annotations at runtime to tell
 # required keys from NotRequired ones (``__required_keys__``).
 import sys
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal
 
 if sys.version_info >= (3, 11):
-    from typing import NotRequired
+    from typing import NotRequired, TypedDict
 else:  # pragma: no cover - Python 3.10
-    from typing_extensions import NotRequired
+    # Python 3.10 stdlib TypedDict does not understand the backported NotRequired.
+    from typing_extensions import NotRequired, TypedDict
 
 # --- Sending (sender keys) ----------------------------------------------------
 
