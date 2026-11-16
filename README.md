@@ -34,3 +34,10 @@ The libraries do nothing without a key from the AIX console.
 ## Rights
 
 These libraries may be used only to connect to AIX, under the AIX terms. See [LICENSE](LICENSE). AIX is the subject of a US provisional patent application. © Brambles.ai.
+
+## Verify a connection or prepare a release
+
+The current development candidate is **0.1.1**, unreleased; see the [changelog](CHANGELOG.md).
+See [connection and release verification](docs/verification.md) for the opt-in read-only
+probe, package CI/build checks, exact-version artifact tooling, and the sandbox/client/
+merchant evidence still required. Tooling does not publish packages or create credentials.
