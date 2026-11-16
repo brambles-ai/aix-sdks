@@ -41,4 +41,4 @@ jobs:
     needs: [javascript, python]
     uses: ./.github/workflows/verify-release.yml
     with:
-      version: '0.1.0'
+      version: '0.1.1'

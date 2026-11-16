@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "brambles-aix"
-version = "0.1.0"
+version = "0.1.1"
 description = "Client SDK for the Agentic Intent Exchange (AIX) HTTPS API: send intent, report handoffs, receive and verify deliveries."
 readme = "README.md"
 requires-python = ">=3.10"

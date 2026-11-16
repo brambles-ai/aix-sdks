@@ -61,7 +61,7 @@ async function main() {
     if (sse) fail('invalid JSON-RPC response');
     try { return { response, data: JSON.parse(text) }; } catch { fail('invalid JSON'); }
   }
-  const initialize = { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: protocols[0], capabilities: {}, clientInfo: { name: 'aix-read-only-probe', version: '0.1.0' } } };
+  const initialize = { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: protocols[0], capabilities: {}, clientInfo: { name: 'aix-read-only-probe', version: '0.1.1' } } };
   const headers = { Accept: 'application/json, text/event-stream', 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 

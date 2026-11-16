@@ -1,6 +1,8 @@
 # Verify an AIX connection and release candidate
 
-The package versions remain **0.1.0**. This tooling prepares local artifacts and CI
+The coordinated patch candidate is **0.1.1** for both packages; **0.1.0** is the
+already published baseline. The Python 3.10 typing fix changes shipped source and
+therefore must use a new version. This tooling prepares local artifacts and CI
 artifacts. It does not publish to npm/PyPI, create a tag or GitHub release, issue a
 credential, or change an AIX account. A successful check is evidence only for the
 specific layer it exercised.
@@ -18,7 +20,7 @@ From the repository root:
 npm ci --prefix packages/aix-js
 python3 -m venv .venv
 .venv/bin/python -m pip install -e './packages/aix-python[test]' build twine
-.venv/bin/python scripts/verify-release.py --version 0.1.0
+.venv/bin/python scripts/verify-release.py --version 0.1.1
 ```
 
 This runs both existing package suites, JavaScript type checking, controlled HTTP
@@ -26,7 +28,7 @@ probe fixtures, and release validator tests. It cleans/rebuilds JavaScript, pack
 the actual npm archive, builds Python's sdist and then its wheel from that sdist,
 checks versions/names/license/types/exports, runs `twine check --strict`, and installs
 both built packages in temporary directories for offline import/no-key smoke tests.
-The generated `.artifacts/0.1.0/verification.json` records the commit, dirty state,
+The generated `.artifacts/0.1.1/verification.json` records the commit, dirty state,
 requested tag (if any), and artifact SHA-256 values. It is not a provenance signature.
 The output directory must be new or empty; use `--output` to keep another run.
 
@@ -44,14 +46,25 @@ an exact version. A future push of an already authorized `vX.Y.Z` tag runs the s
 verification and requires that tag to point at the clean checked-out commit:
 
 ```sh
-.venv/bin/python scripts/verify-release.py --version 0.1.0 --tag v0.1.0 --output .artifacts/tag-check
+.venv/bin/python scripts/verify-release.py --version 0.1.1 --tag v0.1.1 --output .artifacts/tag-check
 ```
 
 That command **does not create a tag**. It fails unless the tag already exists locally
 and matches HEAD and the package versions. The workflow only reads repository contents
 and uploads build artifacts. There are no npm/PyPI credentials or publication steps.
-Tag creation, a version change, publication, and any live deployment remain separate
-reviewed release actions. Do not re-publish an existing 0.1.0 registry version.
+The 0.1.1 version change is a candidate in this PR. Tag creation, publication, and
+any live deployment remain separate reviewed release actions. Do not re-publish an
+existing 0.1.0 registry version.
+
+Before any later publication, review the final source commit and tag **that exact
+commit** as `v0.1.1` only when authorized. Check out the tag and rerun the tagged
+verification command; compare `verification.json.commit` to that reviewed SHA and
+retain its archive digests. GitHub PR CI checks a synthetic merge snapshot, so its
+commit is not the branch release SHA. Build artifacts from an earlier dirty checkout
+or a different commit are not release artifacts for the reviewed tag. This workflow
+does not create a tag or publish anything. If integration changes the commit SHA,
+review that resulting commit and regenerate the artifacts from it before tagging.
+See [the changelog](../CHANGELOG.md).
 
 ## Opt-in connection probe
 
@@ -149,7 +162,8 @@ existing Vite 7.3.7 peer explicitly. The official
 identifies 4.1.12 as the first patched mocker release. The updated dependency tree
 removes tinypool and npm audit reports zero vulnerabilities at verification time.
 This does not establish that dependencies can never have undisclosed issues.
-Package runtime dependencies, public versions and the runtime engine field stay
-unchanged. CI also caught a Python 3.10 typing compatibility defect: the existing
+Package runtime dependencies and the runtime engine field stay unchanged. Both
+package versions move together to the unreleased 0.1.1 patch candidate. CI also
+caught a Python 3.10 typing compatibility defect: the existing
 `NotRequired` backport now uses its matching `TypedDict` backport so optional wire
 fields remain optional in runtime metadata.
